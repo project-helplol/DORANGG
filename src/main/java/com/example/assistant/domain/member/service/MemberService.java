@@ -8,9 +8,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.assistant.domain.member.domain.Member;
+import com.example.assistant.domain.member.dto.MemberResponse;
 import com.example.assistant.domain.member.repository.MemberRepository;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 
@@ -60,10 +62,23 @@ public class MemberService {
 		String token = Jwts.builder()
 			.subject(String.valueOf(member.getId()))
 			.issuedAt(new Date())
-			.signWith(key)
+			.signWith(key, SignatureAlgorithm.HS256) // 키와 알고리즘으로 서명
 			.compact();
 
 		return token;
 	}
 
+	public MemberResponse findById(Long loginUserId) {
+		Member member = memberRepository.findById(loginUserId)
+			.orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+		
+		MemberResponse memberResponse = new MemberResponse(
+			member.getId(),
+			member.getEmail(),
+			member.getName(),
+			member.getNickname(),
+			member.getCreatedAt()
+		);
+		return memberResponse;
+	}
 }
