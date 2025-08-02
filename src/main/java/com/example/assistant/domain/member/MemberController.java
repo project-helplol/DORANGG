@@ -37,4 +37,20 @@ public class MemberController {
 		);
 		return ResponseEntity.ok().build();
 	}
+
+	/**
+	 * POST http://localhost:8080/api/members/singin
+	 *
+	 * Contents-type: application/json
+	 *
+	 * {
+	 *     "email" : "hong-gd@gmail.com",
+	 *     "password" : "password"
+	 * }
+	 */
+	@PostMapping("/signin")
+	ResponseEntity<String> signin(@RequestBody SigninRequest signinRequest) {
+		String token = memberService.singin(signinRequest.getEmail(), signinRequest.getPassword());
+		return ResponseEntity.ok().body(token);
+	}
 }
