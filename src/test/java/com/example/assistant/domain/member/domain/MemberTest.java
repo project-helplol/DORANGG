@@ -1,4 +1,4 @@
-package com.example.assistant.domain.member;
+package com.example.assistant.domain.member.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
