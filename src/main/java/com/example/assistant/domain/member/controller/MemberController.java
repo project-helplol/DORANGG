@@ -1,11 +1,14 @@
 package com.example.assistant.domain.member.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.assistant.domain.member.dto.MemberResponse;
 import com.example.assistant.domain.member.dto.SigninRequest;
 import com.example.assistant.domain.member.dto.SignupRequest;
 import com.example.assistant.domain.member.service.MemberService;
@@ -56,5 +59,13 @@ public class MemberController {
 	ResponseEntity<String> signin(@RequestBody SigninRequest signinRequest) {
 		String token = memberService.singin(signinRequest.getEmail(), signinRequest.getPassword());
 		return ResponseEntity.ok().body(token);
+	}
+
+	@GetMapping("/my-page")
+	ResponseEntity<MemberResponse> myPage(
+		@AuthenticationPrincipal Long loginUserId
+	) {
+		MemberResponse memberResponse = memberService.findById(loginUserId);
+		return ResponseEntity.ok().body(memberResponse);
 	}
 }

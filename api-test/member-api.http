@@ -17,3 +17,8 @@ Content-Type: application/json
   "email": "hong-gd@gmail.com",
   "password": "password"
 }
+
+### 마이페이지 API
+GET localhost:8080/api/members/my-page
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzU0MTE4OTUxfQ.5xc45HuQnPKMZBfc9CAsXMjIg6h3-xbDM2aYcAezLqE
+
