@@ -1,3 +1,4 @@
+```tree
 src/
 └── main/
 └── java/
@@ -36,3 +37,4 @@ src/
 │
 └── exception/
 └── RiotDataNotFoundException.java
+```
