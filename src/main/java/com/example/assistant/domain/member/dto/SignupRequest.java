@@ -1,4 +1,4 @@
-package com.example.assistant.domain.member;
+package com.example.assistant.domain.member.dto;
 
 import lombok.Getter;
 

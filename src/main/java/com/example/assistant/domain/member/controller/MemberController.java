@@ -1,10 +1,14 @@
-package com.example.assistant.domain.member;
+package com.example.assistant.domain.member.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.assistant.domain.member.dto.SigninRequest;
+import com.example.assistant.domain.member.dto.SignupRequest;
+import com.example.assistant.domain.member.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
 

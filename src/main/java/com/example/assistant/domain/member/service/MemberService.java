@@ -1,7 +1,10 @@
-package com.example.assistant.domain.member;
+package com.example.assistant.domain.member.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.example.assistant.domain.member.domain.Member;
+import com.example.assistant.domain.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
