@@ -1,11 +1,17 @@
 package com.example.assistant.domain.member.service;
 
+import java.security.Key;
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.assistant.domain.member.domain.Member;
 import com.example.assistant.domain.member.repository.MemberRepository;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -13,6 +19,9 @@ import lombok.RequiredArgsConstructor;
 public class MemberService {
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
+
+	@Value("${jwt.secret-key}")
+	String secretKey;
 
 	/**
 	 * 회원 가입
@@ -45,7 +54,16 @@ public class MemberService {
 			throw new RuntimeException("비밀번호가 일치하지 않습니다.");
 		}
 
+		Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+
 		// TODO 입장권 : Session/JWT
-		return "token";
+		String token = Jwts.builder()
+			.subject(String.valueOf(member.getId()))
+			.issuedAt(new Date())
+			.signWith(key)
+			.compact();
+
+		return token;
 	}
+
 }
