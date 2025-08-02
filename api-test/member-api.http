@@ -1,0 +1,9 @@
+POST localhost:8080/api/members/signup
+Content-Type: application/json
+
+{
+  "email": "hong-gd@gmail.com",
+  "password": "password",
+  "name": "홍길동",
+  "nickname": "동에번쩍 서에번쩍"
+}
