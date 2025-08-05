@@ -27,12 +27,13 @@ public class SecurityConfig {
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/api/members/signup").permitAll()
-				.requestMatchers("/api/members/signin").permitAll()
-				.requestMatchers("/api/riot").permitAll()
-				.anyRequest().authenticated()
-			)
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/api/members/signup").permitAll()
+						.requestMatchers("/api/members/signin").permitAll()
+						.requestMatchers("/api/riot").permitAll()
+						.requestMatchers("/api/riot-user").permitAll()
+						.anyRequest().authenticated()
+				)
 			.build();
 	}
 

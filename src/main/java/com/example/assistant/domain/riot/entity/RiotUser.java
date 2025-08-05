@@ -22,17 +22,14 @@ public class RiotUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 30)
+    @Column(nullable = false, unique = true, length = 100)
     private String puuid;
 
     @Column(nullable = false, length = 30)
-    private String riotId;
+    private String gameName;
 
     @Column(nullable = false, length = 30)
-    private String tagline;
-
-    @Enumerated(EnumType.STRING)
-    private Tier tier;
+    private String tagLine;
 
     @CreatedDate
     @Column(updatable = false)
