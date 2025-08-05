@@ -1,15 +1,14 @@
 package com.example.assistant.domain.riot.dto.request;
 
-
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class RiotUserRequest {
 
     private String gameName;
+    private String tagLine;
+
 
 }
