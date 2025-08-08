@@ -32,6 +32,10 @@ public class SecurityConfig {
 						.requestMatchers("/api/members/signin").permitAll()
 						.requestMatchers("/api/riot").permitAll()
 						.requestMatchers("/api/riot-user").permitAll()
+                        .requestMatchers("/api/match").permitAll()
+                        .requestMatchers("/api/match/**").permitAll()
+                        .requestMatchers("/api/ai/").permitAll()
+                        .requestMatchers("/api/ai/daily-briefing").permitAll()
 						.anyRequest().authenticated()
 				)
 			.build();

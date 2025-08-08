@@ -1,6 +1,6 @@
 package com.example.assistant.domain.riot.dto.response;
 
-import com.example.assistant.domain.riot.Enum.GameResult;
+import com.example.assistant.domain.riot.enums.GameResult;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,9 +10,10 @@ import java.time.LocalDateTime;
 @Builder
 public class MatchResponse {
     private String matchId;
-    private String championName;
-    private String kda;
     private GameResult result;
-    private LocalDateTime playDate;
-    private Integer duration;
+    private String kda;
+    private String championName;
+    private LocalDateTime matchDateTime; // erd 수정요망
+    private String teamPosition;
+    private int gameDuration;
 }

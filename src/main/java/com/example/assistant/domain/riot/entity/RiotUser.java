@@ -1,6 +1,5 @@
 package com.example.assistant.domain.riot.entity;
 
-import com.example.assistant.domain.riot.Enum.Tier;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
