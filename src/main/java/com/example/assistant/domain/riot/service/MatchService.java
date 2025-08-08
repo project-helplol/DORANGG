@@ -2,6 +2,7 @@ package com.example.assistant.domain.riot.service;
 
 import com.example.assistant.domain.riot.dto.request.MatchRequest;
 import com.example.assistant.domain.riot.dto.response.MatchResponse;
+import com.example.assistant.domain.riot.dto.response.MatchSummaryResponse;
 import com.example.assistant.domain.riot.entity.Match;
 import com.example.assistant.domain.riot.entity.RiotUser;
 import com.example.assistant.domain.riot.enums.GameResult;
@@ -38,7 +39,7 @@ public class MatchService {
     private static final String MATCH_DETAIL_URL = "https://asia.api.riotgames.com/lol/match/v5/matches/{matchId}";
     private static final String MATCH_TIMELINE_URL = "https://asia.api.riotgames.com/lol/match/v5/matches/{matchId}/timeline";
 
-    public List<MatchResponse> fetchAndSaveMatches(MatchRequest request) {
+    public MatchSummaryResponse fetchAndSaveMatches(MatchRequest request) {
         RiotUser riotUser = riotUserRepository.findByGameNameAndTagLine (request.getGameName(), request.getTagLine())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을수 없어요.."));
 
@@ -58,6 +59,9 @@ public class MatchService {
 
         String[] matchIds = response.getBody();
         List<MatchResponse> resultList = new ArrayList<>();
+
+        int winCount = 0;
+        int totalCount = 0;
 
         for (String matchId : matchIds) {
             if (matchRepository.existsByMatchId(matchId)) continue;
@@ -90,6 +94,12 @@ public class MatchService {
                     matchId
             );
 
+            boolean isWin = (Boolean) userData.get("win");
+            if (isWin) {
+                winCount++;
+            }
+            totalCount++;
+
             Match match = Match.builder()
                     .matchId(matchId)
                     .result((Boolean) userData.get("win") ? GameResult.WIN : GameResult.LOSE)
@@ -115,9 +125,12 @@ public class MatchService {
                     .build());
 
         }
-        return resultList;
+
+        double winRate = totalCount > 0 ? (winCount * 100.0 / totalCount) : 0;
+
+        return MatchSummaryResponse.builder()
+                .matchs(resultList)
+                .winRate(winRate)
+                .build();
     }
-
-
-
 }
