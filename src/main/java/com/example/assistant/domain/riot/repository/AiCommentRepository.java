@@ -1,4 +1,7 @@
 package com.example.assistant.domain.riot.repository;
 
-public class AiCommentRepository {
+import com.example.assistant.domain.riot.entity.AiComment;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AiCommentRepository extends JpaRepository<AiComment, Long> {
 }

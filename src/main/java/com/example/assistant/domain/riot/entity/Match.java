@@ -1,15 +1,17 @@
 package com.example.assistant.domain.riot.entity;
 
-import com.example.assistant.domain.riot.Enum.GameResult;
+import com.example.assistant.domain.riot.enums.GameResult;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Match")
+@Table(name = "match-info")
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 
 public class Match {
     @Id
@@ -17,10 +19,10 @@ public class Match {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private RiotUser userid;
+    @JoinColumn(name = "riot_user_id", nullable = false)
+    private RiotUser riotUser;
 
-    @Column(nullable = false, length = 100)
+    @Column(unique = true, nullable = false)
     private String matchId;
 
     @Enumerated(EnumType.STRING)
@@ -30,15 +32,23 @@ public class Match {
     @Column(nullable = false)
     private String kda;
 
-    @Column(length = 30, nullable = false)
-    private String champtionName;
+    @Column(nullable = false) // 변경요망 테스트중
+    private String championName;
 
     @Column(nullable = false)
-    private LocalDateTime playDate;
+    private LocalDateTime matchDateTime;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
-    @Column(nullable = false)
-    private Integer duration;
 
+    @Column(nullable = false)
+    private int gameDuration;
+
+    @Column(nullable = false)
+    private String teamPosition;
+
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }

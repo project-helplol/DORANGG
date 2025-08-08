@@ -1,4 +1,4 @@
-package com.example.assistant.domain.riot.Enum;
+package com.example.assistant.domain.riot.enums;
 
 import lombok.Getter;
 
