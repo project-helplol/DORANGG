@@ -4,6 +4,10 @@ import com.example.assistant.domain.riot.dto.gpt.ChatMessage;
 import com.example.assistant.domain.riot.dto.gpt.ChatRequest;
 import com.example.assistant.domain.riot.dto.gpt.ChatResponse;
 import com.example.assistant.domain.riot.dto.request.DailyBriefingRequest;
+import com.example.assistant.domain.riot.entity.PlayerStats;
+import com.example.assistant.domain.riot.entity.RiotUser;
+import com.example.assistant.domain.riot.repository.PlayerStatsRepository;
+import com.example.assistant.domain.riot.repository.RiotUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -16,20 +20,38 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class AiCommentService {
 
-
     @Value("${spring.ai.openai.api-key}")
     private String apiKey;
 
+    @Value("${spring.ai.openai.model}")
+    private String modelName;
 
-    public String generateDailyBriefing(DailyBriefingRequest request) {
+    private final RiotUserRepository riotUserRepository;
+    private final PlayerStatsRepository playerStatsRepository;
+
+
+    public String generateDailyBriefing(String gameName, String tagLine) {
+        RiotUser riotUser = riotUserRepository.findByGameNameAndTagLine(gameName, tagLine)
+                .orElseThrow(() -> new RuntimeException(
+                        String.format("라이엇 유저를 찾을 수 없습니다. gameName=%s, tagLine=%s", gameName, tagLine)
+                ));
+
+        PlayerStats stats = playerStatsRepository.findByRiotUser_Id(riotUser.getId())
+                .orElseThrow(() -> new RuntimeException(
+                        String.format("플레이어 통계를 찾을 수 없습니다. riotUserId=%d", riotUser.getId())
+                ));
+
         String prompt = String.format(
-                "%s#%s님은 %s 티어의 %s 포지션 유저입니다. 선호 챔피언은 %s이고, 최근 %d연승 중이며 평균 KDA는 %.2f, 승률은 %.2f%%, 총 %d판을 플레이했습니다. 이에 대해 전문가처럼 요약 멘트를 주세요.",
-                request.getGameName(), request.getTagLine(), request.getTier(),
-                request.getPosition(), request.getPreferredChampion(),
-                request.getWinStreak(), request.getAvgKda(), request.getWinRate(), request.getTotalGames()
+                "LoL 전적 분석가이자 멘탈 코치로서 %s#%s (%s, 승률 %.1f%%)에게 한 줄 멘트.",
+                stats.getRiotUser().getGameName(),
+                stats.getRiotUser().getTagLine(),
+                stats.getFavoritePosition(),
+                stats.getWinRate()
         );
 
-        ChatRequest chatRequest = new ChatRequest("gpt-3.5-turbo", Collections.singletonList(new ChatMessage("user", prompt)));
+        ChatRequest chatRequest = new ChatRequest();
+        chatRequest.setModel(modelName);
+        chatRequest.setMessages(Collections.singletonList(new ChatMessage("user", prompt)));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -47,4 +69,4 @@ public class AiCommentService {
 
         return response.getBody().getChoices().get(0).getMessage().getContent();
     }
-}
+    }

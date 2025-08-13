@@ -31,11 +31,11 @@ public class RiotUser {
     private String tagLine;
 
     @CreatedDate
-    @Column(updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
+    @Column(nullable = true)
     private LocalDateTime updateAt;
-
 
 }

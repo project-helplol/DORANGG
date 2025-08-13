@@ -1,14 +1,11 @@
 package com.example.assistant.domain.riot.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
+@Getter
 @NoArgsConstructor
-public class DailyBriefingRequest {
-    private Long riotUserId;
+public class PlayerStatsRequest {
     private String gameName;
     private String tagLine;
 }
