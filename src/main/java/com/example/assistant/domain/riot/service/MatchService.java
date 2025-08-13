@@ -2,7 +2,6 @@ package com.example.assistant.domain.riot.service;
 
 import com.example.assistant.domain.riot.dto.request.MatchRequest;
 import com.example.assistant.domain.riot.dto.response.MatchResponse;
-import com.example.assistant.domain.riot.dto.response.MatchSummaryResponse;
 import com.example.assistant.domain.riot.entity.Match;
 import com.example.assistant.domain.riot.entity.RiotUser;
 import com.example.assistant.domain.riot.enums.GameResult;
@@ -39,8 +38,8 @@ public class MatchService {
     private static final String MATCH_DETAIL_URL = "https://asia.api.riotgames.com/lol/match/v5/matches/{matchId}";
     private static final String MATCH_TIMELINE_URL = "https://asia.api.riotgames.com/lol/match/v5/matches/{matchId}/timeline";
 
-    public MatchSummaryResponse fetchAndSaveMatches(MatchRequest request) {
-        RiotUser riotUser = riotUserRepository.findByGameNameAndTagLine (request.getGameName(), request.getTagLine())
+    public List<MatchResponse> fetchAndSaveMatches(MatchRequest request) {
+        RiotUser riotUser = riotUserRepository.findByGameNameAndTagLine(request.getGameName(), request.getTagLine())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을수 없어요.."));
 
         String puuid = riotUser.getPuuid();
@@ -60,11 +59,10 @@ public class MatchService {
         String[] matchIds = response.getBody();
         List<MatchResponse> resultList = new ArrayList<>();
 
-        int winCount = 0;
-        int totalCount = 0;
+        List<String> existingMatchIds = matchRepository.findMatchIdsByRiotUser(riotUser);
 
         for (String matchId : matchIds) {
-            if (matchRepository.existsByMatchId(matchId)) continue;
+            if (existingMatchIds.contains(matchId)) continue;
 
             ResponseEntity<Map> detailRes = restTemplate.exchange(
                     MATCH_DETAIL_URL, //MATCH_IDS_URL,
@@ -94,12 +92,6 @@ public class MatchService {
                     matchId
             );
 
-            boolean isWin = (Boolean) userData.get("win");
-            if (isWin) {
-                winCount++;
-            }
-            totalCount++;
-
             Match match = Match.builder()
                     .matchId(matchId)
                     .result((Boolean) userData.get("win") ? GameResult.WIN : GameResult.LOSE)
@@ -125,12 +117,34 @@ public class MatchService {
                     .build());
 
         }
+        resultList.clear();
 
-        double winRate = totalCount > 0 ? (winCount * 100.0 / totalCount) : 0;
+        List<Match> recentMatches = matchRepository.findTop20ByRiotUserOrderByMatchDateTimeDesc(riotUser);
 
-        return MatchSummaryResponse.builder()
-                .matchs(resultList)
-                .winRate(winRate)
-                .build();
+        for (Match m : recentMatches) {
+            resultList.add(MatchResponse.builder()
+                    .matchId(m.getMatchId())
+                    .result(m.getResult())
+                    .kda(m.getKda())
+                    .championName(m.getChampionName())
+                    .matchDateTime(m.getMatchDateTime())
+                    .gameDuration(m.getGameDuration())
+                    .teamPosition(m.getTeamPosition())
+                    .build());
+
+
+
+            // DB에 저장된 매치가 20개를 초과할 경우,
+            // 오래된 매치 데이터를 삭제하여 저장 개수를 제한하는 로직 (추후 구현 예정)
+            // 1. 해당 유저의 모든 매치를 최신순으로 조회
+            // 2. 20번째 이후의 매치들을 잘라서 삭제 대상 리스트 생성
+            // 3. 삭제 대상 리스트를 DB에서 일괄 삭제
+//            List<Match> allMatches = matchRepository.findAllByRiotUserOrderByMatchDateTimeDesc(riotUser);
+//            if (allMatches.size() > 20) {
+//                List<Match> toDelete = allMatches.subList(20, allMatches.size());
+//                matchRepository.deleteAll(toDelete);
+            }
+        return resultList;
+        }
+
     }
-}

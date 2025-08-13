@@ -3,6 +3,8 @@ package com.example.assistant.domain.riot.entity;
 import com.example.assistant.domain.riot.enums.GameResult;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 
 public class Match {
     @Id
@@ -38,6 +41,7 @@ public class Match {
     @Column(nullable = false)
     private LocalDateTime matchDateTime;
 
+    @CreatedDate
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -47,8 +51,4 @@ public class Match {
     @Column(nullable = false)
     private String teamPosition;
 
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
 }

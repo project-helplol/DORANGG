@@ -13,9 +13,8 @@ public class AiCommentController {
 
     private final AiCommentService aiCommentService;
 
-    @PostMapping("/daily-briefing")
+    @PostMapping(value ="/daily-briefing", consumes = "application/json")
     public ResponseEntity<String> getDailyBriefing(@RequestBody DailyBriefingRequest request) {
-        String comment = aiCommentService.generateDailyBriefing(request);
-        return ResponseEntity.ok(comment);
+        return ResponseEntity.ok(aiCommentService.generateDailyBriefing(request.getGameName(), request.getTagLine()));
     }
 }

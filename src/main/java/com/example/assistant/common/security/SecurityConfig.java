@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/match/**").permitAll()
                         .requestMatchers("/api/ai/").permitAll()
                         .requestMatchers("/api/ai/daily-briefing").permitAll()
+                        .requestMatchers("/api/player-stats").permitAll()
 						.anyRequest().authenticated()
 				)
 			.build();
