@@ -1,4 +1,4 @@
-package com.example.assistant.domain.member.dto;
+package com.example.assistant.domain.member.dto.response;
 
 import java.time.LocalDateTime;
 

@@ -1,19 +1,20 @@
 package com.example.assistant.domain.member.controller;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.example.assistant.domain.member.dto.MemberResponse;
-import com.example.assistant.domain.member.dto.SigninRequest;
-import com.example.assistant.domain.member.dto.SignupRequest;
+import com.example.assistant.domain.member.dto.response.MemberResponse;
+import com.example.assistant.domain.member.dto.request.SigninRequest;
+import com.example.assistant.domain.member.dto.request.SignupRequest;
 import com.example.assistant.domain.member.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/members")
@@ -34,16 +35,16 @@ public class MemberController {
 	 *     "nickname" : "동에번쩍 서에번쩍"
 	 * }
 	 */
-	@PostMapping("/signup")
-	ResponseEntity<Void> signup(@RequestBody SignupRequest signupRequest) {
-		memberService.signup(
-			signupRequest.getEmail(),
-			signupRequest.getPassword(),
-			signupRequest.getName(),
-			signupRequest.getNickname()
-		);
-		return ResponseEntity.ok().build();
-	}
+    @PostMapping("/signup")
+    public ResponseEntity<MemberResponse> signup(@RequestBody SignupRequest request) {
+        MemberResponse response = memberService.signup(
+                request.getEmail(),
+                request.getPassword(),
+                request.getName(),
+                request.getNickname()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
 	/**
 	 * POST http://localhost:8080/api/members/singin
@@ -55,11 +56,14 @@ public class MemberController {
 	 *     "password" : "password"
 	 * }
 	 */
-	@PostMapping("/signin")
-	ResponseEntity<String> signin(@RequestBody SigninRequest signinRequest) {
-		String token = memberService.singin(signinRequest.getEmail(), signinRequest.getPassword());
-		return ResponseEntity.ok().body(token);
-	}
+    @PostMapping("/signin")
+    public ResponseEntity<Map<String, String>> signin(@RequestBody SigninRequest signinRequest) {
+        String token = memberService.singin(signinRequest.getEmail(), signinRequest.getPassword());
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "로그인 성공!");
+        response.put("token", token);
+        return ResponseEntity.ok(response);
+    }
 
 	@GetMapping("/my-page")
 	ResponseEntity<MemberResponse> myPage(
@@ -68,4 +72,23 @@ public class MemberController {
 		MemberResponse memberResponse = memberService.findById(loginUserId);
 		return ResponseEntity.ok().body(memberResponse);
 	}
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMember(
+            @AuthenticationPrincipal Long memberId,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String tokenHeader) {
+
+        String token = tokenHeader.substring(7);
+        memberService.deleteMember(memberId, token);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String tokenHeader) {
+
+        String token = tokenHeader.substring(7);
+        memberService.logout(token);
+        return ResponseEntity.noContent().build();
+    }
 }

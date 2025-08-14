@@ -1,5 +1,6 @@
-package com.example.assistant.domain.riot.dto.gpt;
+package com.example.assistant.domain.ai.dto.response;
 
+import com.example.assistant.domain.ai.dto.message.ChatMessage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

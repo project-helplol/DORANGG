@@ -1,34 +1,21 @@
 package com.example.assistant.domain.riot.service;
 
-import com.example.assistant.domain.riot.dto.gpt.ChatMessage;
-import com.example.assistant.domain.riot.dto.gpt.ChatRequest;
-import com.example.assistant.domain.riot.dto.gpt.ChatResponse;
-import com.example.assistant.domain.riot.dto.request.DailyBriefingRequest;
+import com.example.assistant.domain.ai.client.SpringAiOpenAiClient;
 import com.example.assistant.domain.riot.entity.PlayerStats;
 import com.example.assistant.domain.riot.entity.RiotUser;
 import com.example.assistant.domain.riot.repository.PlayerStatsRepository;
 import com.example.assistant.domain.riot.repository.RiotUserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
 public class AiCommentService {
-
-    @Value("${spring.ai.openai.api-key}")
-    private String apiKey;
-
-    @Value("${spring.ai.openai.model}")
-    private String modelName;
-
+    
     private final RiotUserRepository riotUserRepository;
     private final PlayerStatsRepository playerStatsRepository;
-
+    private final SpringAiOpenAiClient springAiOpenAiClient;
 
     public String generateDailyBriefing(String gameName, String tagLine) {
         RiotUser riotUser = riotUserRepository.findByGameNameAndTagLine(gameName, tagLine)
@@ -48,25 +35,6 @@ public class AiCommentService {
                 stats.getFavoritePosition(),
                 stats.getWinRate()
         );
-
-        ChatRequest chatRequest = new ChatRequest();
-        chatRequest.setModel(modelName);
-        chatRequest.setMessages(Collections.singletonList(new ChatMessage("user", prompt)));
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey);
-
-        HttpEntity<ChatRequest> entity = new HttpEntity<>(chatRequest, headers);
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<ChatResponse> response = restTemplate.exchange(
-                "https://api.openai.com/v1/chat/completions",
-                HttpMethod.POST,
-                entity,
-                ChatResponse.class
-        );
-
-        return response.getBody().getChoices().get(0).getMessage().getContent();
+        return springAiOpenAiClient.sendMessage(prompt);
     }
     }
