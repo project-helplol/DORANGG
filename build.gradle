@@ -27,6 +27,8 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.5'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
     runtimeOnly 'com.h2database:h2'
 

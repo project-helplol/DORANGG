@@ -1,10 +1,11 @@
-package com.example.assistant.common.security;
+package com.example.assistant.common.security.filter;
 
 import static org.springframework.http.HttpHeaders.*;
 
 import java.io.IOException;
 import java.security.Key;
 
+import com.example.assistant.domain.member.service.TokenBlacklistService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,8 +25,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
+    private final TokenBlacklistService tokenBlacklistService;
+
 	@Value("${jwt.secret-key}")
 	private String secretKey;
+
+    public String getSecretKey() {
+        return secretKey;
+    }
 
 	/**
 	 * GET http://localhost:8080/api/my-page
@@ -43,12 +50,19 @@ public class JwtFilter extends OncePerRequestFilter {
 		FilterChain filterChain
 	) throws ServletException, IOException {
 		// 1. 요청 헤더에서 입장권 추출 (Authorization)
-		String token = request.getHeader(AUTHORIZATION);
-		
-		if (token == null) {
-			filterChain.doFilter(request, response);
-			return;
-		}
+        String token = request.getHeader(AUTHORIZATION);
+        if (token == null || !token.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        token = token.substring(7);
+
+        // 블랙리스트 확인 기능 추가
+        if (tokenBlacklistService.isBlacklisted(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
 
 		// 2. 입장권이 우리가 발급한 입장권인지 검사
 		Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
@@ -57,7 +71,7 @@ public class JwtFilter extends OncePerRequestFilter {
 			.setSigningKey(key)
 			.build()
 			.parseClaimsJws(token)
-			.getPayload();
+            .getBody();  // .getPayload();
 		Long userId = Long.parseLong(payload.getSubject());
 
 		// 3. Application 전체에서 인증된 사용자 정보를 사용할 수 있는 환경 구성 : Security Context Holder

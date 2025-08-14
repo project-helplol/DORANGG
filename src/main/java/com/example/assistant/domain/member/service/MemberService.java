@@ -8,19 +8,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.assistant.domain.member.domain.Member;
-import com.example.assistant.domain.member.dto.MemberResponse;
+import com.example.assistant.domain.member.dto.response.MemberResponse;
 import com.example.assistant.domain.member.repository.MemberRepository;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
+    private final TokenBlacklistService tokenBlacklistService;
 
 	@Value("${jwt.secret-key}")
 	String secretKey;
@@ -30,7 +32,7 @@ public class MemberService {
 	 * - 이미 회원 가입된 이메일인 경우?
 	 * - 비밀번호는 암호화 되어야 할 것 같은데
 	 */
-	public void signup(String email, String password, String name, String nickname) {
+	public MemberResponse signup(String email, String password, String name, String nickname) {
 		// 이메일 중복검사
 		boolean isExist = memberRepository.existsByEmail(email);
 		if (isExist) {
@@ -42,7 +44,15 @@ public class MemberService {
 		Member member = new Member(email, encodedPassword, name, nickname);
 
 		// DB 저장
-		memberRepository.save(member);
+		Member savedMember = memberRepository.save(member);
+
+        return new MemberResponse(
+                savedMember.getId(),
+                savedMember.getEmail(),
+                savedMember.getName(),
+                savedMember.getNickname(),
+                savedMember.getCreatedAt()
+        );
 	}
 
 	public String singin(String email, String password) {
@@ -58,10 +68,15 @@ public class MemberService {
 
 		Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
+        long expirationMillis = 7L * 24 * 60 * 60 * 1000; // 7일 이후 토큰 만료
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expirationMillis);
+
 		// TODO 입장권 : Session/JWT
 		String token = Jwts.builder()
 			.subject(String.valueOf(member.getId()))
-			.issuedAt(new Date())
+            .setIssuedAt(now)
+            .setExpiration(new Date(now.getTime() + expirationMillis))
 			.signWith(key, SignatureAlgorithm.HS256) // 키와 알고리즘으로 서명
 			.compact();
 
@@ -81,4 +96,20 @@ public class MemberService {
 		);
 		return memberResponse;
 	}
+
+    @Transactional
+    public void deleteMember(Long memberId, String token) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+
+        memberRepository.delete(member);
+
+        long ttl = 7L * 24 * 60 * 60 * 1000;
+        tokenBlacklistService.blacklistToken(token, ttl);
+    }
+
+    public void logout(String token) {
+        long ttl = 7L * 24 * 60 * 60 * 1000;
+        tokenBlacklistService.blacklistToken(token, ttl);
+    }
 }

@@ -1,4 +1,4 @@
-package com.example.assistant.domain.riot.dto.gpt;
+package com.example.assistant.domain.ai.dto.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChatMessage {
     private String role;
-    private  String content;
+    private String content;
 }
