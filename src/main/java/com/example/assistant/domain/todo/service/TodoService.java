@@ -1,11 +1,14 @@
 package com.example.assistant.domain.todo.service;
 
-import com.example.assistant.domain.member.domain.Member;
+import com.example.assistant.domain.member.entity.Member;
 import com.example.assistant.domain.member.repository.MemberRepository;
 import com.example.assistant.domain.todo.dto.request.CreateTodoRequest;
 import com.example.assistant.domain.todo.dto.request.UpdateTodoStatusRequest;
+import com.example.assistant.domain.todo.dto.response.TodoGoalResponse;
 import com.example.assistant.domain.todo.dto.response.TodoResponse;
 import com.example.assistant.domain.todo.entity.Todo;
+import com.example.assistant.domain.todo.entity.TodoGoal;
+import com.example.assistant.domain.todo.enums.GoalStatus;
 import com.example.assistant.domain.todo.enums.TodoStatus;
 import com.example.assistant.domain.todo.repository.TodoRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,14 +31,23 @@ public class TodoService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("작성자를 찾을 수 없습니다."));
 
-        TodoStatus status = (request.getStatus() == null) ? TodoStatus.TODAY : request.getStatus();
+        TodoStatus status = (request.getStatus() == null) ? TodoStatus.PENDING : request.getStatus();
 
         Todo todo = Todo.builder()
                 .member(member)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .status(status)
+                .todoGoals(new ArrayList<>())
                 .build();
+
+        if (request.getGoals() != null) {
+            request.getGoals().forEach(g -> {
+                TodoGoal goal = new TodoGoal();
+                goal.setContent(g.getContent());
+                todo.addGoal(goal);
+            });
+        }
 
         todoRepository.save(todo);
         return toResponse(todo);
@@ -48,6 +61,7 @@ public class TodoService {
                 ));
         return toResponse(todo);
     }
+
 
     @Transactional(readOnly = true)
     public List<TodoResponse> getTodoList(Long memberId, TodoStatus status) {
@@ -63,7 +77,21 @@ public class TodoService {
     public TodoResponse updateStatus(Long id, UpdateTodoStatusRequest request, Long memberId) {
         Todo todo = todoRepository.findByIdAndMember_Id(id, memberId)
                 .orElseThrow(() -> new EntityNotFoundException("목표를 수정 할 수 없습니다."));
-        todo.setStatus(request.getStatus());
+        // Todo 상태 업데이트
+        if (request.getStatus() != null) {
+            todo.setStatus(request.getStatus());
+        }
+
+        // Goal 상태 업데이트
+        if (request.getGoalStatusMap() != null) {
+            request.getGoalStatusMap().forEach((goalId, goalStatus) -> {
+                TodoGoal goal = todo.getTodoGoals().stream()
+                        .filter(g -> g.getId().equals(goalId))
+                        .findFirst()
+                        .orElseThrow(() -> new EntityNotFoundException("해당 골을 찾을 수 없습니다."));
+                goal.setStatus(goalStatus); // 이미 GoalStatus enum
+            });
+        }
         return toResponse(todo);
     }
 
@@ -79,6 +107,9 @@ public class TodoService {
                 .title(todo.getTitle())
                 .content(todo.getContent())
                 .status(todo.getStatus())
+                .goals(todo.getTodoGoals().stream()
+                        .map(TodoGoalResponse::from)
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

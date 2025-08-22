@@ -1,6 +1,7 @@
 package com.example.assistant.domain.doranchatbot.service;
 
 import com.example.assistant.domain.ai.client.SpringAiOpenAiClient;
+import com.example.assistant.domain.doranchatbot.dto.response.DoranChatBotResponse;
 import com.example.assistant.domain.riot.service.PlayerStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ public class DoranChatBotService {
     private final SpringAiOpenAiClient springAiOpenAiClient;
     private final PlayerStatsService playerStatsService;
 
-    public String generateResponse(String gameName, String tagLine, String userPrompt) {
+    public DoranChatBotResponse generateResponse(String gameName, String tagLine, String userPrompt) {
 
         var stats = playerStatsService.getPlayerStats(gameName, tagLine);
 
@@ -33,6 +34,8 @@ public class DoranChatBotService {
                 "\n가장 많이 플레이한 챔피언: " + stats.getMostPlayedChampion() +
                 "\n질문: " + userPrompt;
 
-        return springAiOpenAiClient.sendMessage(finalPrompt);
+        String aiResponse = springAiOpenAiClient.sendMessage(finalPrompt);
+
+        return new DoranChatBotResponse(aiResponse, gameName, tagLine);
     }
 }

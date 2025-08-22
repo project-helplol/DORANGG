@@ -51,4 +51,10 @@ public class Match {
     @Column(nullable = false)
     private String teamPosition;
 
+    @Column(nullable = false)
+    private String gameType;
+
+    @Column(nullable = false)
+    private int queueId;
+
 }

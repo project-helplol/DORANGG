@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -14,22 +15,26 @@ import org.springframework.stereotype.Controller;
 public class DoranChatBotWebSocketController {
 
     private final DoranChatBotService doranChatBotService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/doranchatbot")
-    @SendTo("/topic/doranchatbot")
-    public DoranChatBotResponse chat (DoranChatBotRequest request) {
-        if (request.getPrompt() != null && request.getPrompt().length() > 100) {
-            return new DoranChatBotResponse("100글자 이내로 입력해주세요.");
-        }
-        String responseMessage = doranChatBotService.generateResponse(
+    public void chat(DoranChatBotRequest request) {
+        String responseMessage = String.valueOf(doranChatBotService.generateResponse(
                 request.getGameName(),
                 request.getTagLine(),
                 request.getPrompt()
+        ));
+
+        DoranChatBotResponse response = new DoranChatBotResponse(
+                responseMessage,
+                request.getGameName(),
+                request.getTagLine()
         );
+
+        // DTO를 그대로 전송
+        messagingTemplate.convertAndSend("/topic/doranchatbot", response);
 
         System.out.println("[DoranChatBot] 요청: " + request.getPrompt());
         System.out.println("[DoranChatBot] 응답: " + responseMessage);
-
-        return new DoranChatBotResponse(responseMessage);
     }
 }

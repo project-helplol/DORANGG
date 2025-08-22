@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.assistant.domain.member.domain.Member;
+import com.example.assistant.domain.member.entity.Member;
 import com.example.assistant.domain.member.dto.response.MemberResponse;
 import com.example.assistant.domain.member.repository.MemberRepository;
 

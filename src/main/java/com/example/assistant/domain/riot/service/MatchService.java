@@ -8,6 +8,7 @@ import com.example.assistant.domain.riot.enums.GameResult;
 import com.example.assistant.domain.riot.repository.MatchRepository;
 import com.example.assistant.domain.riot.repository.RiotUserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MatchService {
 
     private final MatchRepository matchRepository;
@@ -38,6 +40,37 @@ public class MatchService {
     private static final String MATCH_DETAIL_URL = "https://asia.api.riotgames.com/lol/match/v5/matches/{matchId}";
     private static final String MATCH_TIMELINE_URL = "https://asia.api.riotgames.com/lol/match/v5/matches/{matchId}/timeline";
 
+    private String getGameType(int queueId) {
+        return switch(queueId) {
+            case 420 -> "RANKED";
+            case 430, 440 -> "NORMAL";
+            case 450 -> "ARAM";
+            default -> "OTHER";
+        };
+    }
+
+    private <T> ResponseEntity<T> safeExchange(String url, HttpMethod method, HttpEntity<?> entity, Class<T> responseType, Object... uriVariables) {
+        int maxRetry = 3;
+
+        for (int i = 0; i < maxRetry; i++) {
+            try {
+                if (i > 0) log.warn("재시도 중... {}", (maxRetry - i));
+                return restTemplate.exchange(url, method, entity, responseType, uriVariables);
+            } catch (Exception e) {
+                if (i == maxRetry - 1) {
+                    throw e;
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+        throw new RuntimeException("재시도 실패");
+    }
+
     public List<MatchResponse> fetchAndSaveMatches(MatchRequest request) {
         RiotUser riotUser = riotUserRepository.findByGameNameAndTagLine(request.getGameName(), request.getTagLine())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을수 없어요.."));
@@ -48,7 +81,7 @@ public class MatchService {
         headers.set("X-Riot-Token", riotApiKey);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<String[]> response = restTemplate.exchange(
+        ResponseEntity<String[]> response = safeExchange(
                 MATCH_IDS_URL,
                 HttpMethod.GET,
                 entity,
@@ -64,8 +97,8 @@ public class MatchService {
         for (String matchId : matchIds) {
             if (existingMatchIds.contains(matchId)) continue;
 
-            ResponseEntity<Map> detailRes = restTemplate.exchange(
-                    MATCH_DETAIL_URL, //MATCH_IDS_URL,
+            ResponseEntity<Map> detailRes = safeExchange(
+                    MATCH_DETAIL_URL,
                     HttpMethod.GET,
                     entity,
                     Map.class,
@@ -84,8 +117,11 @@ public class MatchService {
             int gameDuration = ((Number) info.get("gameDuration")).intValue();
             LocalDateTime matchDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(gameStartTimestamp), ZoneId.systemDefault());
 
-            ResponseEntity<Map> timeLineRes = restTemplate.exchange(
-                    MATCH_TIMELINE_URL, // MATCH_IDS_URL,
+            int queueId = ((Number) info.get("queueId")).intValue();
+            String gameType = getGameType(queueId);
+
+            ResponseEntity<Map> timeLineRes = safeExchange(
+                    MATCH_TIMELINE_URL,
                     HttpMethod.GET,
                     entity,
                     Map.class,
@@ -101,18 +137,22 @@ public class MatchService {
                     .matchDateTime(matchDateTime)
                     .riotUser(riotUser)
                     .teamPosition((String) userData.get("teamPosition"))
+                    .gameType(gameType)
+                    .queueId(queueId)
                     .build();
 
             matchRepository.save(match);
 
             resultList.add(MatchResponse.builder()
                     .matchId(match.getMatchId())
-                    .result(match.getResult())
+                    .result(match.getResult().getDescription())
                     .kda(match.getKda())
                     .championName(match.getChampionName())
                     .matchDateTime(match.getMatchDateTime())
                     .gameDuration(match.getGameDuration())
                     .teamPosition(match.getTeamPosition())
+                    .gameType(gameType)
+                    .queueId(queueId)
                     // .timeline(timeLineRes.getBody())
                     .build());
 
@@ -124,12 +164,14 @@ public class MatchService {
         for (Match m : recentMatches) {
             resultList.add(MatchResponse.builder()
                     .matchId(m.getMatchId())
-                    .result(m.getResult())
+                    .result(m.getResult().getDescription())
                     .kda(m.getKda())
                     .championName(m.getChampionName())
                     .matchDateTime(m.getMatchDateTime())
                     .gameDuration(m.getGameDuration())
                     .teamPosition(m.getTeamPosition())
+                    .gameType(m.getGameType())
+                    .queueId(m.getQueueId())
                     .build());
 
 
