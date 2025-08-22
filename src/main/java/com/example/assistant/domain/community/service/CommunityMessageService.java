@@ -4,7 +4,7 @@ import com.example.assistant.domain.community.dto.request.CommunityMessageReques
 import com.example.assistant.domain.community.dto.response.CommunityMessageResponse;
 import com.example.assistant.domain.community.entity.CommunityMessage;
 import com.example.assistant.domain.community.repository.CommunityMessageRepository;
-import com.example.assistant.domain.member.domain.Member;
+import com.example.assistant.domain.member.entity.Member;
 import com.example.assistant.domain.member.repository.MemberRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -75,6 +77,27 @@ public class CommunityMessageService {
         }
 
         return communityMessageRepository.findTop200ByRoomOrderByCreatedAtDesc(room)
+                .stream()
+                .map(m -> new CommunityMessageResponse(
+                        m.getId(),
+                        m.getMemberId(),
+                        m.getNickname(),
+                        m.getRoom(),
+                        m.getContent(),
+                        m.getCreatedAt()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommunityMessageResponse> getPreviousMessages(String room, String beforeCreatedAt) {
+        if (!allowedRooms.contains(room)) {
+            throw new RuntimeException("허용되지 않은 채팅방입니다.");
+        }
+
+        LocalDateTime beforeTime = LocalDateTime.parse(beforeCreatedAt, DateTimeFormatter.ISO_DATE_TIME);
+
+        return communityMessageRepository.findByRoomAndCreatedAtBeforeOrderByCreatedAtDesc(room, beforeTime)
                 .stream()
                 .map(m -> new CommunityMessageResponse(
                         m.getId(),

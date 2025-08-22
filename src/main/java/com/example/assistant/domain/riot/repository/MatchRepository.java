@@ -15,7 +15,4 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
 
     @Query("SELECT m.matchId FROM Match m WHERE m.riotUser = :riotUser")
     List<String> findMatchIdsByRiotUser(@Param("riotUser") RiotUser riotUser);
-
-
-    // List<Match> findAllByRiotUserOrderByMatchDateTimeDesc(RiotUser riotUser);
 }

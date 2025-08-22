@@ -1,4 +1,4 @@
-package com.example.assistant.domain.member.domain;
+package com.example.assistant.domain.member.entity;
 
 import java.time.LocalDateTime;
 
@@ -22,29 +22,29 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class Member {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(nullable = false, unique = true)
-	private String email;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-	@Column(nullable = false)
-	private String password;
+    @Column(nullable = false)
+    private String password;
 
-	@Column(nullable = false)
-	private String name;
+    @Column(nullable = false)
+    private String name;
 
-	private String nickname;
+    private String nickname;
 
-	@CreatedDate
-	@Column(nullable = false, updatable = false)
-	private LocalDateTime createdAt;
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-	public Member(String email, String password, String name, String nickname) {
-		this.email = email;
-		this.password = password;
-		this.name = name;
-		this.nickname = nickname;
-	}
+    public Member(String email, String password, String name, String nickname) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.nickname = nickname;
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.assistant.domain.member.domain;
 
+import com.example.assistant.domain.member.entity.Member;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

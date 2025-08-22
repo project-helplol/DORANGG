@@ -60,12 +60,17 @@ public class PlayerStatsService {
 
     private static final String TIER_BY_PUUID_URL = "https://kr.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}";
     private static final String CHAMPION_MASTERY_URL = "https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}";
+    private static final String SUMMONER_BY_PUUID_URL = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}";
 
     public PlayerStatsResponse getPlayerStats (String gameName, String tagLine){
         RiotUser riotUser = riotUserRepository.findByGameNameAndTagLine(gameName, tagLine)
                 .orElseThrow(() -> new RuntimeException("없는 사용자에요.."));
 
         String puuid = riotUser.getPuuid();
+
+        Map<String, Object> summonerInfo = fetchSummonerBasicInfoByPuuid(puuid);
+        Integer profileIconId = (Integer) summonerInfo.get("profileIconId");
+        Long summonerLevel = ((Number) summonerInfo.get("summonerLevel")).longValue();
 
         List<Match> recentMatches = matchRepository.findTop20ByRiotUserOrderByMatchDateTimeDesc(riotUser);
 
@@ -124,6 +129,8 @@ public class PlayerStatsService {
         playerStats.setTier(tier);
         playerStats.setTotalGames(recentMatches.size());
         playerStats.setWinCount((int) winCount);
+        playerStats.setProfileIconId(profileIconId);
+        playerStats.setSummonerLevel(summonerLevel);
 
         playerStatsRepository.save(playerStats);
 
@@ -134,6 +141,8 @@ public class PlayerStatsService {
                 .winRate(winRate)
                 .favoritePosition(favoritePosition)
                 .mostPlayedChampion(mostPlayedChampion)
+                .profileIconId(profileIconId)
+                .summonerLevel(summonerLevel)
                 .build();
 
     }
@@ -185,4 +194,19 @@ public class PlayerStatsService {
 
          return body;
      }
+    public Map<String, Object> fetchSummonerBasicInfoByPuuid(String puuid) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Riot-Token", riotApiKey);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                SUMMONER_BY_PUUID_URL,
+                HttpMethod.GET,
+                entity,
+                Map.class,
+                puuid
+        );
+
+        return response.getBody();
+    }
 }

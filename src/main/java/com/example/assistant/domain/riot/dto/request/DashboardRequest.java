@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RiotUserRequest {
-
+public class DashboardRequest {
     private String gameName;
     private String tagLine;
-
-
 }
