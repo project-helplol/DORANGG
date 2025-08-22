@@ -1,5 +1,6 @@
 package com.example.assistant.domain.riot.entity;
 
+import com.example.assistant.domain.riot.enums.RecommendationType;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
@@ -15,7 +16,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class AiComment {
+public class AiRecommendation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,8 +28,16 @@ public class AiComment {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RecommendationType type;
+
+    @Column(columnDefinition = "TEXT")
+    private String prompt;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @PrePersist
     public void onCreate() {

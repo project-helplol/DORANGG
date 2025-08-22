@@ -9,4 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DoranChatBotResponse {
     private String message;
+    private String gameName;
+    private String tagLine;
 }

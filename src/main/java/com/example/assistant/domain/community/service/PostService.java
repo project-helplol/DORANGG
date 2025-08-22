@@ -4,7 +4,7 @@ import com.example.assistant.domain.community.dto.request.PostRequest;
 import com.example.assistant.domain.community.dto.response.PostResponse;
 import com.example.assistant.domain.community.entity.Post;
 import com.example.assistant.domain.community.repository.PostRepository;
-import com.example.assistant.domain.member.domain.Member;
+import com.example.assistant.domain.member.entity.Member;
 import com.example.assistant.domain.member.repository.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

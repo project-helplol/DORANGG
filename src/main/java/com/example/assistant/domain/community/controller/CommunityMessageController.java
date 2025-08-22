@@ -21,7 +21,7 @@ public class CommunityMessageController {
     public ResponseEntity<CommunityMessageResponse> postMessage(
             @AuthenticationPrincipal Long memberId,
             @RequestBody CommunityMessageRequest request
-            ) {
+    ) {
         CommunityMessageResponse response = communityMessageService.saveMessage(memberId, request);
         return ResponseEntity.ok(response);
     }
@@ -31,6 +31,15 @@ public class CommunityMessageController {
             @RequestParam String room
     ) {
         List<CommunityMessageResponse> messages = communityMessageService.getLatestMessages(room);
+        return ResponseEntity.ok(messages);
+    }
+
+    @GetMapping("/previous")
+    public ResponseEntity<List<CommunityMessageResponse>> getPreviousMessages(
+            @RequestParam String room,
+            @RequestParam String before
+    ) {
+        List<CommunityMessageResponse> messages = communityMessageService.getPreviousMessages(room, before);
         return ResponseEntity.ok(messages);
     }
 }

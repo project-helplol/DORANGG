@@ -1,6 +1,6 @@
 package com.example.assistant.domain.todo.service;
 
-import com.example.assistant.domain.member.domain.Member;
+import com.example.assistant.domain.member.entity.Member;
 import com.example.assistant.domain.member.repository.MemberRepository;
 import com.example.assistant.domain.todo.dto.request.CreateTodoRequest;
 import com.example.assistant.domain.todo.dto.request.UpdateTodoStatusRequest;
@@ -27,7 +27,7 @@ public class TodoService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("작성자를 찾을 수 없습니다."));
 
-        TodoStatus status = (request.getStatus() == null) ? TodoStatus.TODAY : request.getStatus();
+        TodoStatus status = (request.getStatus() == null) ? TodoStatus.PENDING : request.getStatus();
 
         Todo todo = Todo.builder()
                 .member(member)

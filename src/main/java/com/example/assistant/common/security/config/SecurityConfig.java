@@ -61,7 +61,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/match/**").permitAll()
                         .requestMatchers("/api/ai/").permitAll()
                         .requestMatchers("/api/ai/daily-briefing").permitAll()
+                        .requestMatchers("/api/ai/strategy-briefing").permitAll()
+                        .requestMatchers("/api/ai/build-briefing").permitAll()
+                        .requestMatchers("/api/ai/dashboard-position").permitAll()
+                        .requestMatchers("/api/ai/dashboard-champion").permitAll()
+                        .requestMatchers("/api/ai/dashboard-tier").permitAll()
+                        .requestMatchers("/api/ai/dashboard-winrate").permitAll()
+                        .requestMatchers("/api/ai/dashboard-mastery").permitAll()
+                        .requestMatchers("/api/ai/dashboard-streak").permitAll()
                         .requestMatchers("/api/player-stats").permitAll()
+                        .requestMatchers("/api/dashboard").permitAll()
+
 
 
                         .requestMatchers(HttpMethod.GET, "/api/post/**").permitAll()
@@ -84,9 +94,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedOriginPatterns(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // configuration.setAllowedOrigins(List.of("http://localhost:3000")); // 교체
+        configuration.setAllowedOriginPatterns(List.of("*")); // 배포전 수정 요망
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 

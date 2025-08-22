@@ -14,4 +14,6 @@ public class PlayerStatsResponse {
     private double winRate;
     private String favoritePosition;
     private String mostPlayedChampion;
+    private Integer profileIconId;
+    private Long summonerLevel;
 }

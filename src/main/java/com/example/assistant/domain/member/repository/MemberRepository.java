@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.assistant.domain.member.domain.Member;
+import com.example.assistant.domain.member.entity.Member;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 	boolean existsByEmail(String email);

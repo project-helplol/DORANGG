@@ -1,6 +1,6 @@
 package com.example.assistant.domain.community.entity;
 
-import com.example.assistant.domain.member.domain.Member;
+import com.example.assistant.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 

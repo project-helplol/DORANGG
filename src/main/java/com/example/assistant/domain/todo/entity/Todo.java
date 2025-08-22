@@ -3,8 +3,7 @@ package com.example.assistant.domain.todo.entity;
 import com.example.assistant.domain.todo.enums.TodoStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import com.example.assistant.domain.member.domain.Member;
-import java.time.LocalDateTime;
+import com.example.assistant.domain.member.entity.Member;
 
 @Entity
 @Getter

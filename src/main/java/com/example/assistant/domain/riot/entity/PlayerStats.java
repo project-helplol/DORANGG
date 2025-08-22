@@ -41,6 +41,12 @@ public class PlayerStats {
     @Column(nullable = true)
     private String tier;
 
+    @Column(nullable = true)
+    private Integer profileIconId;
+
+    @Column(nullable = true)
+    private Long summonerLevel;
+
     @Column(nullable = false)
     private int totalGames;
 
