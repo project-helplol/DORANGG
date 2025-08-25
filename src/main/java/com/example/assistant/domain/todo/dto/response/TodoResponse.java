@@ -13,7 +13,7 @@ public class TodoResponse {
     private String content;
     private TodoStatus status;
 
-    public static TodoResponse from(Todo todo){
+    public static TodoResponse todo(Todo todo){
         return TodoResponse.builder()
                 .id(todo.getId())
                 .title(todo.getTitle())

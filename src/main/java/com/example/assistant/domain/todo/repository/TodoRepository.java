@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TodoRepository extends JpaRepository<Todo, Long> {
+
     List<Todo> findByMember_Id(Long memberId);
     // List<Todo> findByEndDatetimeBefore(LocalDateTime dateTime);
     List<Todo> findByMember_IdAndStatus(Long memberID, TodoStatus status);

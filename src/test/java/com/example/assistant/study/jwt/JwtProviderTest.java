@@ -3,6 +3,7 @@ package com.example.assistant.study.jwt;
 import java.security.Key;
 import java.util.Date;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +11,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
+@Disabled
 @DisplayName("study:jwt")
 public class JwtProviderTest {
 

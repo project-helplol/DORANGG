@@ -41,9 +41,15 @@ public class DashboardService {
                 .summonerLevel(playerStats.getSummonerLevel())
                 .build();
 
-        String content = aiRecommendationService.generateDailyBriefing(gameName, tagLine);
-        content = content.replaceAll("^\"|\"$", "");
-        AiRecommendationResponse aiRecommendation = new AiRecommendationResponse(content);
+        String dailyContent = aiRecommendationService.generateDailyBriefing(gameName, tagLine);
+        dailyContent = dailyContent.replaceAll("^\"|\"$", "");
+        AiRecommendationResponse dailyBriefing = new AiRecommendationResponse(dailyContent);
+
+        String strategyContent = aiRecommendationService.generateStrategyBriefingResponse(gameName, tagLine).getMessage();
+        strategyContent = strategyContent.replaceAll("^\"|\"$", "");
+        AiRecommendationResponse strategyRecommendation = new AiRecommendationResponse(strategyContent);
+
+        DashboardCardsResponse dashboardCards = aiRecommendationService.generateDashboardCardsResponse(gameName, tagLine);
 
         int currentStreak = calculateCurrentStreak(recentMatches);
 
@@ -51,7 +57,9 @@ public class DashboardService {
                 .riotUser(riotUser)
                 .recentMatches(recentMatches)
                 .playerStats(dashboardStats)
-                .aiRecommendation(aiRecommendation)
+                .dailyBriefing(dailyBriefing)
+                .strategyRecommendation(strategyRecommendation)
+                .dashboardCards(dashboardCards)
                 .currentStreak(currentStreak)
                 .build();
 

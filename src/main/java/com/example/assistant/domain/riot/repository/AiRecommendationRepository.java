@@ -17,4 +17,9 @@ public interface AiRecommendationRepository extends JpaRepository<AiRecommendati
             LocalDateTime start,
             LocalDateTime end
     );
+
+    Optional<AiRecommendation> findTopByRiotUserAndTypeOrderByCreatedAtDesc(
+            RiotUser riotUser, RecommendationType type
+    );
+
 }

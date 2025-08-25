@@ -2,6 +2,7 @@ package com.example.assistant.domain.riot.controller;
 
 import com.example.assistant.domain.riot.dto.request.DailyBriefingRequest;
 import com.example.assistant.domain.riot.dto.response.AiRecommendationResponse;
+import com.example.assistant.domain.riot.dto.response.DashboardCardsResponse;
 import com.example.assistant.domain.riot.service.AiRecommendationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -40,53 +41,10 @@ public class AiRecommendationController {
     }
 
 
-
-
-    @PostMapping(value = "/dashboard-position", consumes = "application/json")
-    public ResponseEntity<AiRecommendationResponse> getDashboardPosition(@RequestBody DailyBriefingRequest request) {
-        AiRecommendationResponse response = aiRecommendationService.generateDashboardPositionResponse(
-                request.getGameName(), request.getTagLine()
-        );
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping(value = "/dashboard-champion", consumes = "application/json")
-    public ResponseEntity<AiRecommendationResponse> getDashboardChampion(@RequestBody DailyBriefingRequest request) {
-        AiRecommendationResponse response = aiRecommendationService.generateDashboardChampionResponse(
-                request.getGameName(), request.getTagLine()
-        );
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping(value = "/dashboard-tier", consumes = "application/json")
-    public ResponseEntity<AiRecommendationResponse> generateDashboardTier(@RequestBody DailyBriefingRequest request) {
-        AiRecommendationResponse response = aiRecommendationService.generateDashboardTierResponse(
-                request.getGameName(), request.getTagLine()
-        );
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping(value = "/dashboard-winrate", consumes = "application/json")
-    public ResponseEntity<AiRecommendationResponse> generateDashboardWinRate(@RequestBody DailyBriefingRequest request) {
-        AiRecommendationResponse response = aiRecommendationService.generateDashboardWinRateResponse(
-                request.getGameName(), request.getTagLine()
-        );
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping(value = "/dashboard-mastery", consumes = "application/json")
-    public ResponseEntity<AiRecommendationResponse> getDashboardMastery(@RequestBody DailyBriefingRequest request) {
-        AiRecommendationResponse response = aiRecommendationService.generateDashboardMasteryResponse(
-                request.getGameName(), request.getTagLine()
-        );
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping(value = "/dashboard-streak", consumes = "application/json")
-    public ResponseEntity<AiRecommendationResponse> getDashboardStreak(@RequestBody DailyBriefingRequest request) {
-        AiRecommendationResponse response = aiRecommendationService.generateDashboardStreakResponse(
-                request.getGameName(), request.getTagLine()
-        );
+    @PostMapping(value = "/dashboard-cards", consumes = "application/json")
+    public ResponseEntity<DashboardCardsResponse> getDashboardCards(@RequestBody DailyBriefingRequest request) {
+        DashboardCardsResponse response =
+                aiRecommendationService.generateDashboardCardsResponse(request.getGameName(), request.getTagLine());
         return ResponseEntity.ok(response);
     }
 }

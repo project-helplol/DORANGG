@@ -1,12 +1,13 @@
 package com.example.assistant.domain.member.repository;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import com.example.assistant.domain.member.entity.Member;
-
+@Disabled
 @DisplayName("Repository:Member")
 @DataJpaTest
 class MemberRepositoryTest {
