@@ -94,8 +94,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // configuration.setAllowedOrigins(List.of("http://localhost:3000")); // 교체
-        configuration.setAllowedOriginPatterns(List.of("*")); // 배포전 수정 요망
+        configuration.setAllowedOriginPatterns(
+                List.of(
+                        "https://doran.my",
+                        "https://www.doran.my"
+                )
+        );
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
