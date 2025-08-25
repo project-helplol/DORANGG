@@ -44,4 +44,3 @@ src/
 │
 └── exception/
 └── RiotDataNotFoundException.java
-```

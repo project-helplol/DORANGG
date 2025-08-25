@@ -28,6 +28,10 @@ public class TodoService {
     private final MemberRepository memberRepository;
 
     public TodoResponse createTodo(Long memberId, CreateTodoRequest request) {
+        List<Todo> existingTodos = todoRepository.findByMember_Id(memberId); // List
+//        if (existingTodos.size() >= 5) {
+//            throw new IllegalStateException("최대 5개의 목표만 설정할 수 있습니다.");
+//        }
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("작성자를 찾을 수 없습니다."));
 
@@ -100,6 +104,14 @@ public class TodoService {
                 .orElseThrow(() -> new EntityNotFoundException("목표를 삭제 할 수 없습니다."));
         todoRepository.delete(todo);
     }
+
+//    //checked
+//    public TodoResponse checkTodo(Long memberId, Long id, boolean cheked) {
+//        Todo todo = todoRepository.findByIdAndMember_Id(id, memberId)
+//                .orElseThrow(() -> new EntityNotFoundException("목표를 찾을 수 없습니다."));
+//        todo.setStatus(cheked ? TodoStatus.COMPLETED : TodoStatus.PENDING);
+//        return toResponse(todo);
+//    }
 
     private TodoResponse toResponse(Todo todo) {
         return TodoResponse.builder()
